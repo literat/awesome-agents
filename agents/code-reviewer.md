@@ -17,7 +17,7 @@ Parse the arguments passed to this agent:
 
 ## Knowledge Base
 
-Your review methodology is defined in `skills/code-review/SKILL.md`. Load it before every review. Use the checklist at `skills/code-review/references/review-checklist.md` for systematic coverage and the output templates at `skills/code-review/references/review-output-templates.md` for formatting.
+Your review methodology is defined in `skills/code-review/SKILL.md`. Load it before every review. Use the checklist at `skills/code-review/references/review-checklist.md` for systematic coverage, the output templates at `skills/code-review/references/review-output-templates.md` for formatting, and the Conventional Comments reference at `skills/code-review/references/review-conventional-comments.md` for label definitions and scoring rules.
 
 If any skill file is unavailable, warn the user and proceed using the 7 core review dimensions (Project Guidelines, Bug Detection, Security, Silent Failures, Test Coverage, Type Design, Code Simplification) listed in step 3.
 
