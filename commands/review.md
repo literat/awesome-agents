@@ -14,8 +14,4 @@ Review the current code changes. Detect the appropriate mode from the arguments:
 - `--local` → local branch changes vs main
 - `--thorough` → deep multi-pass review using 3 parallel Agent passes (security+bugs, types+simplification, tests+silent-failures), then merge and deduplicate results
 
-IMPORTANT: You MUST delegate this entire task to the **code-reviewer** subagent.
-Do not perform the review yourself in the main context.
-Delegate to the **code-reviewer** agent, passing `$ARGUMENTS` through unchanged; the subagent is responsible for fetching the diff via `gh pr diff` / `git diff` according to the detected mode.
-
 Arguments: $ARGUMENTS
