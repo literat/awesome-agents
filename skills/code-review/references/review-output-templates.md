@@ -33,7 +33,7 @@ Scope: N commits, N files changed (+N / -N lines)
 
 ---
 
-### Already Reported
+### Already Reported  <!-- PR review mode only — omit this section in local review mode -->
 
 N. <file-or-area> — <short context>
 
