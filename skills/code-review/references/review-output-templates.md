@@ -31,6 +31,16 @@ Scope: N commits, N files changed (+N / -N lines)
 
 <CC findings for this section>
 
+---
+
+### Already Reported
+
+N. <file-or-area> — <short context>
+
+<Already-reported CC findings>
+
+---
+
 praise: [single praise block]
 
 ## Review Summary
@@ -45,6 +55,7 @@ praise: [single praise block]
 3. **Overview** — Numbered list summarizing what the branch does. Keep each item to 1-2 sentences.
 4. **Numbered sections** — Group findings by file or area. Each section gets a numbered heading: `N. <file-or-area> — <short context>`. Findings within use CC format.
 5. **Sections are organizational, not analytical** — Section headings name the file or area, not the review dimension. Do not use dimension names (Security, Bug Detection, etc.) as section headings.
+6. **Two-tier structure in PR mode** — In PR review mode, `### Already Reported` separates Tier 1 (new) from Tier 2 (already-reported) findings. Omit entirely in local review mode.
 
 ## Single Finding (Local Review)
 
@@ -75,6 +86,28 @@ praise: [single praise block]
 
   Why: What is wrong and why it matters.
 ```
+
+## Already-Reported Finding (PR Review)
+
+```
+<label> (<decorations>): <Short description>
+
+  File: https://github.com/{owner}/{repo}/blob/{sha}/{file}#L{start}-L{end}
+
+  Existing: <permalink to existing PR comment>
+
+  Disposition: already covered | widen scope — <brief explanation>
+
+  Fix: Concrete fix with code (only if "widen scope").
+
+  Why: What is wrong and why it matters (only if "widen scope").
+```
+
+Template rules:
+- `Existing:` — mandatory, contains the `html_url` of the matched comment
+- `Disposition:` — mandatory, one of two values with brief explanation
+- When `already covered`: `Fix:` and `Why:` are optional (omit to reduce noise)
+- When `widen scope`: `Fix:` and `Why:` are mandatory (describe additional scope)
 
 ## Consolidated Finding (N Similar Issues)
 
@@ -110,6 +143,12 @@ Verdict: VERDICT — Explanation.
 ```
 
 Always show `issue (blocking)` and `issue` rows. Omit zero-count rows for other labels (todo, suggestion, question, thought, note, chore).
+
+In PR review mode, add an `Already reported` row:
+```
+| Already reported | 0 |
+```
+This row does NOT affect verdict — verdicts are based on all findings regardless of tier (a blocking issue is blocking whether or not someone else already flagged it). Omit in local review mode.
 
 ## Verdict Templates
 
