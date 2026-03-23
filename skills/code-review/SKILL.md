@@ -216,7 +216,35 @@ const usersWithPosts = await db.query(`
 ```bash
 gh pr diff <number>
 gh pr view <number> --json files,title,body
+gh api repos/{owner}/{repo}/pulls/{number}/comments --paginate
+gh api repos/{owner}/{repo}/issues/{number}/comments --paginate
 ```
+
+- First `gh api` call: inline review comments (file/line-specific)
+- Second `gh api` call: top-level PR conversation comments
+- `--paginate` ensures all comments are fetched
+
+### Cross-Referencing Existing Comments (PR Mode Only)
+
+After fetching existing PR comments, cross-reference them with your findings before producing output.
+
+1. **Parsing** — Extract from each inline comment: `path`, `line`/`original_line`, `start_line`/`original_start_line` (may be null for single-line comments), `body`, `html_url`. When `start_line` is present, treat the comment as covering the range `[start_line..line]`; otherwise treat it as a single-line range. From issue comments: `body`, `html_url` only.
+
+2. **Matching criteria** — A finding matches an existing comment when:
+
+   **Inline comments** — ALL of:
+   - Same file path (exact match)
+   - Overlapping line range (within ±5 lines)
+   - Similar problem description (semantic match, not string match)
+
+   **Top-level PR comments** — match by:
+   - Similar problem description only (no file/line data available)
+
+3. **Disposition** — When a match is found:
+   - `already covered` — existing comment addresses the same or wider scope
+   - `widen scope` — new finding covers additional lines, files, or aspects beyond existing comment
+
+4. **Key rule** — Already-reported findings are NOT suppressed. They are moved to Tier 2 in the output.
 
 ### Local Branch Review Mode
 ```bash
@@ -275,6 +303,7 @@ These rules are mandatory. Violating them produces non-compliant output.
 4. **Fix before Why** — Always put the solution first, explanation second.
 5. **One praise block** — A single `praise:` paragraph after all findings, before the summary table. Do not scatter praise across the output.
 6. **No analysis walkthrough** — Do not show your per-dimension analysis. Only show the resulting findings.
+7. **Two-tier output in PR mode** — In PR review mode, findings that match existing PR comments are placed in Tier 2 (Already Reported) after all Tier 1 (Unreported) findings. Each Tier 2 finding uses the Already-Reported Finding template from `references/review-output-templates.md`.
 
 Never approve code with security vulnerabilities or critical bugs, regardless of other factors.
 

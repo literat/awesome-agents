@@ -59,7 +59,11 @@ When assigning internal confidence:
 
 ## Label Ordering (Output)
 
-Findings are listed flat (no dimension headers), ordered by severity:
+Findings are organized into two tiers in PR review mode.
+
+### Tier 1: Unreported Findings
+
+New findings not yet covered by existing PR comments, ordered by severity:
 
 1. `issue (blocking)`
 2. `issue`
@@ -70,7 +74,15 @@ Findings are listed flat (no dimension headers), ordered by severity:
 7. `note`
 8. `chore`
 
-Praise is reported as a single block after all findings, before the summary table. See `review-output-templates.md` for the summary table format and verdict templates.
+### Tier 2: Already-Reported Findings
+
+Findings matching existing PR comments, ordered by the same severity list.
+Each uses the Already-Reported Finding template from `review-output-templates.md`.
+
+**Local review mode:** Tier 2 does not apply. All findings use a single flat list.
+
+Praise is reported as a single block after all findings (after Tier 2 if present),
+before the summary table. See `review-output-templates.md` for the summary table format and verdict templates.
 
 ## Finding Examples
 
