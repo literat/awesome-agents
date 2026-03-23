@@ -1,5 +1,7 @@
 # Code Review Instructions
 
+Frame findings constructively. Assume the author made a reasonable choice until proven otherwise. Use "consider" for suggestions, ask before asserting when intent is ambiguous, and lead with the fix rather than the fault. The goal is to make the code better, not to catalog what's wrong.
+
 Use [Conventional Comments](https://conventionalcomments.org/) for all findings.
 
 ## Finding Format
@@ -16,9 +18,11 @@ Use [Conventional Comments](https://conventionalcomments.org/) for all findings.
 
 Use the PR head commit SHA for permalinks. For line ranges use `#L{start}-L{end}`.
 
+`question` findings may omit the `Fix:` field because they seek clarification rather than prescribe a change. In PR review mode, Tier 2 already-reported findings may also omit `Fix:`/`Why:` when the disposition is `already covered` (see `skills/code-review/references/review-output-templates.md`). All other labels require `Fix:`.
+
 **Labels:** issue, suggestion, todo, question, thought, note, chore, praise
 **Decorations (required):** `(blocking)` — must fix before merge; `(non-blocking)` — default; `(security)` — security concern; `(if-minor)` — fix only if change is small. Combine as needed: `(blocking, security)`.
-**Confidence rule:** Only report actionable labels (issue, suggestion, todo, chore) when highly confident. Use softer labels (question, thought, note) when uncertain. Never use `nitpick`.
+**Confidence rule:** Only report actionable labels (issue, suggestion, todo, chore) when highly confident. Use softer labels (question, thought, note) when uncertain. Prefer `question` over `issue` when you aren't sure whether code is intentional — ask for the rationale rather than flagging it as a defect. Never use `nitpick`.
 
 ## What NOT to Report
 
@@ -29,6 +33,7 @@ Use the PR head commit SHA for permalinks. For line ranges use `#L{start}-L{end}
 - Intentional lint suppressions with explanatory comments
 - Patterns consistent with the rest of the codebase
 - Hypothetical issues without evidence ("could be a problem if...")
+- Ambiguous intent flagged as defects — when unsure whether code is intentional, use `question` to ask for clarification rather than reporting it as an `issue`
 
 ## Review Dimensions
 
