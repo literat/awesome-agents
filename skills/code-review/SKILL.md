@@ -6,6 +6,8 @@ Comprehensive code review methodology for security, quality, and maintainability
 
 Quality over quantity. Only surface issues that matter. A review flooded with noise trains developers to ignore feedback. Every reported finding must be actionable, specific, and worth the reader's time.
 
+Frame findings constructively. Assume the author made a reasonable choice until proven otherwise. Use "consider" for suggestions, ask before asserting when intent is ambiguous, and lead with the fix rather than the fault. The goal is to make the code better, not to catalog what's wrong.
+
 ## Conventional Comments
 
 This review uses [Conventional Comments](https://conventionalcomments.org/). See `references/review-conventional-comments.md` for full label definitions, decorations, and reporting thresholds.
@@ -24,6 +26,7 @@ Do NOT report:
 - **Already-silenced warnings** — Intentional lint suppressions with explanatory comments
 - **Intentional design decisions** — Patterns consistent with the rest of the codebase
 - **Hypothetical issues** — "This could be a problem if..." without evidence it will be
+- **Ambiguous intent as defects** — When you're unsure whether code is intentional or a mistake, use `question` to ask for clarification rather than reporting it as an `issue`. Approach unclear code with curiosity, not accusation.
 
 ## Review Dimensions
 
@@ -268,7 +271,7 @@ These rules are mandatory. Violating them produces non-compliant output.
 
 1. **No dimension headers in output** — Do not write "Security", "Bug Detection", etc. as section headers. Group findings into numbered sections by file or area instead.
 2. **No narrative between findings** — Do not explain your analysis process. Each finding stands alone in CC format.
-3. **Every finding must use a CC template from `references/review-output-templates.md`** — `<label> (<decorations>): <subject>` followed by `File:` (local path) or `File:` (GitHub permalink), then `Fix:`, `Why:` fields. Decorations are mandatory; default to `(non-blocking)` when no other decoration applies. You may optionally include `// Current` / `// Suggested` code blocks exactly as shown in the template. Do not introduce any additional fields, sections, or headings beyond what the templates define.
+3. **Every finding must use a CC template from `references/review-output-templates.md`** — `<label> (<decorations>): <subject>` followed by `File:` (local path) or `File:` (GitHub permalink), then `Fix:`, `Why:` fields for all labels except `question`, which may omit the `Fix:` field per `references/review-conventional-comments.md`. Decorations are mandatory; default to `(non-blocking)` when no other decoration applies. You may optionally include `// Current` / `// Suggested` code blocks exactly as shown in the template. Do not introduce any additional fields, sections, or headings beyond what the templates define. The `Why:` field may include a brief reference to relevant documentation or standards when it adds clarity (e.g., "See React docs on exhaustive deps"), but do not fabricate URLs or cite sources you aren't certain exist.
 4. **Fix before Why** — Always put the solution first, explanation second.
 5. **One praise block** — A single `praise:` paragraph after all findings, before the summary table. Do not scatter praise across the output.
 6. **No analysis walkthrough** — Do not show your per-dimension analysis. Only show the resulting findings.

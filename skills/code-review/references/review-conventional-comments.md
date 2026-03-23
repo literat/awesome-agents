@@ -28,6 +28,8 @@ Single source of truth for label definitions, decorations, and scoring rules use
 | **chore** | Maintenance or cleanup task | Rename, restructure, update dependency, remove dead code | Apply when convenient | No |
 | **praise** | Positive feedback | Well-written code, good patterns, clever solutions | None — recognition | No |
 
+**Note on `question`:** Prefer `question` over `issue` when you aren't sure whether the code is intentional. Ask for the rationale (e.g., "What was the reasoning for changing X?") rather than flagging it as a defect.
+
 ## Decorations
 
 | Decoration | Definition | When to Apply |
@@ -72,6 +74,8 @@ Praise is reported as a single block after all findings, before the summary tabl
 
 ## Finding Examples
 
+> Note: `question` findings omit the `Fix:` field because they seek clarification rather than prescribe a change. All other labels include `Fix:`.
+
 ### issue (blocking)
 ```
 issue (blocking, security): SQL injection via string concatenation
@@ -114,6 +118,103 @@ File: src/services/pricing.ts:45
 Fix: Add test cases for: zero quantity, negative price, boundary discount tiers.
 
 Why: The discount logic has multiple branches with no test coverage.
+```
+
+### question (non-blocking) — Curious tone
+```
+question (non-blocking): Is the explicit React fragment necessary here?
+
+File: src/components/Layout.tsx:23
+
+Why: The wrapping `<React.Fragment>` could be replaced with `<>...</>` or
+removed entirely if there's a single child — unless there's a specific reason
+it's needed (e.g., key prop on the fragment).
+```
+
+### question (non-blocking) — Seeking rationale
+```
+question (non-blocking): What was the rationale for changing the MIME type?
+
+File: src/api/upload.ts:34
+
+Why: This looks like a significant change for a PR focused on TypeScript
+migration. Was this fixing a pre-existing bug or is it related to the
+migration?
+```
+
+### suggestion (non-blocking) — Helpful with code example
+```
+suggestion (non-blocking): Simplify member selector with direct map
+
+File: src/store/selectors.ts:18
+
+Fix: Consider replacing the manual loop:
+`select: ({ members }) => members.map(transformMember),`
+
+Why: The current implementation manually iterates and pushes to an array.
+The built-in `map` achieves the same result with less code and avoids
+the mutable accumulator.
+
+// Current
+select: ({ members }) => {
+  const result = [];
+  for (const m of members) {
+    result.push(transformMember(m));
+  }
+  return result;
+},
+
+// Suggested
+select: ({ members }) => members.map(transformMember),
+```
+
+### suggestion (non-blocking) — Helpful with reference
+```
+suggestion (non-blocking): Remove unnecessary `act` wrapper around `fireEvent`
+
+File: src/components/__tests__/Button.test.tsx:42
+
+Fix: Remove the `act()` call and use `fireEvent.click(button)` directly.
+
+Why: `act` is not typically needed when using `fireEvent` because React
+Testing Library wraps those calls in `act` behind the scenes. The extra
+wrapper adds noise without changing behavior. See React Testing Library
+docs on `act` for details.
+
+// Current
+act(() => {
+  fireEvent.click(button);
+});
+
+// Suggested
+fireEvent.click(button);
+```
+
+### suggestion (non-blocking) — Kind framing
+```
+suggestion (non-blocking): Use the design system size token instead of raw pixel value
+
+File: src/components/Avatar.tsx:15
+
+Fix: Replace `width: '12px'` with `size: sizePx.xsmall` from the
+`utility` helper.
+
+Why: The design system provides standardized size tokens that stay
+consistent across components. Using `sizePx.xsmall` ensures the avatar
+scales correctly if the design system values are updated.
+```
+
+### chore (non-blocking) — Exact and specific
+```
+chore (non-blocking): Rename file extension from .tsx to .ts
+
+File: src/utils/formatDate.tsx
+
+Fix: Rename to `formatDate.ts`.
+
+Why: This file contains no JSX. Using `.tsx` for non-component files
+adds unnecessary JSX transform overhead and misleads readers about
+the file's purpose.
 ```
 
 ## Verdict Mapping
