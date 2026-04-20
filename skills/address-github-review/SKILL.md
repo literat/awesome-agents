@@ -116,10 +116,19 @@ Execute changes systematically:
 
    Never run `git commit` (or `git commit --fixup`) without first getting this confirmation from the user. This respects project hooks that enforce the commit workflow.
 
+   **Exact syntax required by the hook:**
+   - Fixup: `git commit --fixup=<hash>` — use `=` (equals sign), NOT a space
+     - ✅ `git commit --fixup=851d53d`
+     - ❌ `git commit --fixup 851d53d` — hook will block this even after user confirmed
+   - New commit: `git commit -F "$TMPFILE"` — never `git commit -m "..."`
+
 5. **Reference Review Comments**
    ```bash
    # In commit message, reference the PR comment
-   git commit -m "Fix: Update documentation (review comment PR#1-c123)"
+   # Use -F with a temp file — git commit -m is blocked by the hook
+   TMPFILE=$(mktemp /tmp/commit-msg.XXXXXX)
+   echo "fix: Update documentation (review comment PR#1-c123)" > "$TMPFILE"
+   git commit -F "$TMPFILE"
    ```
 
 6. **Test Changes**
@@ -128,7 +137,8 @@ Execute changes systematically:
    - Check that you haven't introduced regressions
 
 7. **Update Status**
-   - Push commits to the PR branch
+   - Push commits to the PR branch using the confirmation marker: `GIT_PUSH_CONFIRMED=1 git push origin <branch>`
+   - If the user already said to push in their message (e.g. "push and then resolve comments"), use the marker directly — do NOT stop to ask again with `AskUserQuestion`
    - Let checks/CI run to completion
    - Do NOT push if tests fail
 
@@ -599,9 +609,13 @@ EOF
 **Example:** Reviewer suggests `<ButtonLink href={routes.homepage}>`. Current code has `<ButtonLink href={routes.homepage} color="primary">`. Checking only that `routes.homepage` is present misses that `color="primary"` should be removed.
 **Solution:** Diff the entire suggestion against the current file content token by token before concluding it is already applied.
 
-### ❌ Committing Without Asking First
-**Problem:** Running `git commit` directly skips the project's required workflow (hook or convention) for choosing between a new commit and a fixup.
-**Solution:** Always use `AskUserQuestion` before any `git commit` call: ask (1) new commit or fixup, and (2) if fixup, which target hash. Never commit autonomously.
+### ❌ Committing Without Asking First / Wrong Syntax
+**Problem:** Running `git commit` directly skips the required workflow. Also: using `--fixup <hash>` (space) instead of `--fixup=<hash>` (equals) causes the hook to block even after the user confirmed.
+**Solution:** Always use `AskUserQuestion` before any `git commit` call. Then use exact syntax: `git commit --fixup=<hash>` or `git commit -F "$TMPFILE"`. Never `git commit -m "..."` or `git commit --fixup <hash>`.
+
+### ❌ Pushing Without Confirmation Marker
+**Problem:** Running bare `git push` is blocked by the hook, which then re-asks the user — frustrating if they already said to push.
+**Solution:** Always push as `GIT_PUSH_CONFIRMED=1 git push [args]`. If the user already confirmed in their message, use the marker directly without another `AskUserQuestion`.
 
 ## Advanced Patterns
 
