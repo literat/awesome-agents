@@ -14,6 +14,13 @@ COMMAND=$(echo "$INPUT" | jq -er '.tool_input.command') || {
   exit 2
 }
 
+# Strip single- and double-quoted string literals to prevent false positives when
+# 'git push' appears inside a string argument (e.g. gh api -F body="...git push...").
+# COMMAND_UNQUOTED is used ONLY for push interception; DANGEROUS_PATTERNS and commit
+# interception use the original COMMAND so that commands wrapped in quotes (e.g.
+# bash -c "git reset --hard ...") or with quoted path args are still caught.
+COMMAND_UNQUOTED=$(printf '%s\n' "$COMMAND" | sed "s/'[^']*'//g" | sed 's/"[^"]*"//g')
+
 # --- Smart Commit Interception ---
 # Intercept `git commit` to enforce fixup or user-edited message workflow.
 # Allow: --fixup=, -F, --file= (user already chose a workflow)
@@ -46,8 +53,33 @@ COMMIT_MSG
   exit 2
 fi
 
+# --- Smart Push Interception ---
+# Intercept `git push` (including forms with global options: git -c k=v push, git --no-pager push, etc.)
+# to require explicit user confirmation before pushing.
+# Allow: commands where GIT_PUSH_CONFIRMED=1 is the leading env-var prefix (start of command)
+# Block: everything else
+# Note: on the confirmed path we fall through to DANGEROUS_PATTERNS so command chaining
+# (e.g. GIT_PUSH_CONFIRMED=1 git push && git reset --hard) is still caught below.
+if echo "$COMMAND_UNQUOTED" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+push([[:space:]]|$)'; then
+  if ! echo "$COMMAND_UNQUOTED" | grep -qE '^[[:space:]]*GIT_PUSH_CONFIRMED=1[[:space:]]+'; then
+    cat >&2 <<'PUSH_MSG'
+BLOCKED: git push requires explicit user confirmation.
+
+IMPORTANT: You MUST ask the user for confirmation BEFORE pushing. Do NOT push without an explicit answer.
+
+Ask the user: "Should I push these changes?" and WAIT for their response.
+
+After the user confirms, run the push with the confirmation marker:
+  GIT_PUSH_CONFIRMED=1 git push [your original push arguments]
+
+Do NOT proceed without explicit user confirmation.
+PUSH_MSG
+    exit 2
+  fi
+  # Confirmed: fall through to DANGEROUS_PATTERNS to catch any chained dangerous commands
+fi
+
 DANGEROUS_PATTERNS=(
-  "git push"
   "git reset --hard"
   "git clean -fd"
   "git clean -f"
