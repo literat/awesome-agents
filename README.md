@@ -1,5 +1,11 @@
 # Awesome Agents
 
+## Workflows
+
+### Define - Clarify what you build
+
+* [grill-me][grill-me]
+
 Commands are skills executed via slash commands. They overlap but are stored differently.
 
 ## Commands
@@ -16,4 +22,12 @@ Commands are skills executed via slash commands. They overlap but are stored dif
 
 [Claude Sub-agents Documentation][claude-subagents]
 
+## References
+
+* [Matt Pocock - Agent Skills][skills-matt-pocock]
+* [AI Hero - 5 Agent Skills I Use Every Day][skills-aihero-everyday]
+
 [claude-subagents]: https://code.claude.com/docs/en/sub-agents
+[skills-matt-pocock]: https://github.com/mattpocock/skills
+[skills-aihero-everyday]: https://www.aihero.dev/5-agent-skills-i-use-every-day
+[grill-me]: commands/grill-me.md
