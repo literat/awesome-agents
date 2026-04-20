@@ -47,14 +47,15 @@ COMMIT_MSG
 fi
 
 # --- Smart Push Interception ---
-# Intercept `git push` to require explicit user confirmation before pushing.
-# Allow: commands prefixed with GIT_PUSH_CONFIRMED=1 (signals user said yes)
+# Intercept `git push` (including forms with global options: git -c k=v push, git --no-pager push, etc.)
+# to require explicit user confirmation before pushing.
+# Allow: commands where GIT_PUSH_CONFIRMED=1 is the leading env-var prefix (start of command)
 # Block: everything else
-if echo "$COMMAND" | grep -qE '(^|[[:space:]])git push([[:space:]]|$)'; then
-  if echo "$COMMAND" | grep -q 'GIT_PUSH_CONFIRMED=1'; then
-    exit 0
-  fi
-  cat >&2 <<'PUSH_MSG'
+# Note: on the confirmed path we fall through to DANGEROUS_PATTERNS so command chaining
+# (e.g. GIT_PUSH_CONFIRMED=1 git push && git reset --hard) is still caught below.
+if echo "$COMMAND" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+)*[[:space:]]+push([[:space:]]|$)'; then
+  if ! echo "$COMMAND" | grep -qE '^[[:space:]]*GIT_PUSH_CONFIRMED=1[[:space:]]+'; then
+    cat >&2 <<'PUSH_MSG'
 BLOCKED: git push requires explicit user confirmation.
 
 IMPORTANT: You MUST ask the user for confirmation BEFORE pushing. Do NOT push without an explicit answer.
@@ -66,7 +67,9 @@ After the user confirms, run the push with the confirmation marker:
 
 Do NOT proceed without explicit user confirmation.
 PUSH_MSG
-  exit 2
+    exit 2
+  fi
+  # Confirmed: fall through to DANGEROUS_PATTERNS to catch any chained dangerous commands
 fi
 
 DANGEROUS_PATTERNS=(
