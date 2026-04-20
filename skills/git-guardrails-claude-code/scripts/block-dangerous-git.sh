@@ -60,8 +60,8 @@ fi
 # Block: everything else
 # Note: on the confirmed path we fall through to DANGEROUS_PATTERNS so command chaining
 # (e.g. GIT_PUSH_CONFIRMED=1 git push && git reset --hard) is still caught below.
-if echo "$COMMAND_UNQUOTED" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+push([[:space:]]|$)'; then
-  if ! echo "$COMMAND_UNQUOTED" | grep -qE '^[[:space:]]*GIT_PUSH_CONFIRMED=1[[:space:]]+'; then
+if echo "$COMMAND" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+)*[[:space:]]+push([[:space:]]|$)'; then
+  if ! echo "$COMMAND" | grep -qE '^[[:space:]]*GIT_PUSH_CONFIRMED=1[[:space:]]+'; then
     cat >&2 <<'PUSH_MSG'
 BLOCKED: git push requires explicit user confirmation.
 
