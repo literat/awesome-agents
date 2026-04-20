@@ -35,3 +35,4 @@ Commands are skills executed via slash commands. They overlap but are stored dif
 [skills-matt-pocock]: https://github.com/mattpocock/skills
 [skills-aihero-everyday]: https://www.aihero.dev/5-agent-skills-i-use-every-day
 [grill-me]: commands/grill-me.md
+[caveman]: skills/caveman/SKILL.md
