@@ -137,8 +137,9 @@ Execute changes systematically:
    - Check that you haven't introduced regressions
 
 7. **Update Status**
-   - Push commits to the PR branch using the confirmation marker: `GIT_PUSH_CONFIRMED=1 git push origin <branch>`
-   - If the user already said to push in their message (e.g. "push and then resolve comments"), use the marker directly — do NOT stop to ask again with `AskUserQuestion`
+   - **Always ask before pushing** — use `AskUserQuestion` to confirm the user wants to push, even right after they confirmed the commit. Commit confirmation does NOT imply push confirmation; they are two separate steps.
+   - Exception: if the user's original message explicitly said to push (e.g. "push and resolve comments"), skip the separate ask and use the marker directly.
+   - Push using the confirmation marker: `GIT_PUSH_CONFIRMED=1 git push origin <branch>`
    - Let checks/CI run to completion
    - Do NOT push if tests fail
 
@@ -613,9 +614,10 @@ EOF
 **Problem:** Running `git commit` directly skips the required workflow. Also: using `--fixup <hash>` (space) instead of `--fixup=<hash>` (equals) causes the hook to block even after the user confirmed.
 **Solution:** Always use `AskUserQuestion` before any `git commit` call. Then use exact syntax: `git commit --fixup=<hash>` or `git commit -F "$TMPFILE"`. Never `git commit -m "..."` or `git commit --fixup <hash>`.
 
-### ❌ Pushing Without Confirmation Marker
-**Problem:** Running bare `git push` is blocked by the hook, which then re-asks the user — frustrating if they already said to push.
-**Solution:** Always push as `GIT_PUSH_CONFIRMED=1 git push [args]`. If the user already confirmed in their message, use the marker directly without another `AskUserQuestion`.
+### ❌ Pushing Without Asking First
+**Problem:** After confirming a commit, proceeding directly to `git push` without asking — treating commit confirmation as implicit push approval.
+**Example:** User confirms "fixup into 3ac9e6087" → you commit → you immediately push. The user never said to push.
+**Solution:** After committing, use `AskUserQuestion` to ask whether to push before running anything. Only skip this if the user's original message explicitly included push (e.g. "fix, commit, and push"). Always use `GIT_PUSH_CONFIRMED=1 git push [args]` when pushing.
 
 ## Advanced Patterns
 
