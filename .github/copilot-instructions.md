@@ -6,22 +6,58 @@ Use [Conventional Comments](https://conventionalcomments.org/) for all findings.
 
 ## Finding Format
 
+When a code suggestion exists, it **must appear as the very first element** — before the label line and before the `<details>` block. Use GitHub’s PR review suggestion fence (` ```suggestion`), which allows reviewers to apply the fix with one click. When no code suggestion is possible, omit the code block.
+
+**Order is mandatory.** Do not place the label, subject, or `<details>` block before the suggestion block.
+
+Correct format when a suggestion exists:
+
+````markdown
+```suggestion
+{suggested code}
 ```
-<label> (<decorations>): <subject>
 
-  File: https://github.com/{owner}/{repo}/blob/{sha}/{file}#L{line}
+**{label} ({decorations}):** {subject}
 
-  Fix: Concrete fix with code example.
+<details>
+  <summary>Explanation</summary>
+  <strong>Fix:</strong> {fix explanation}
+  <br />
+  <br />
+  <strong>Why:</strong> {why explanation}
+</details>
+````
 
-  Why: What is wrong and why it matters.
+Incorrect — do not do this:
+
+````markdown
+**{label} ({decorations}):** {subject}
+
+<details>…</details>
+
+```suggestion
+{suggested code}
+```
+````
+
+When there is no code suggestion:
+
+```markdown
+**{label} ({decorations}):** {subject}
+
+<details>
+  <summary>Explanation</summary>
+  <strong>Fix:</strong> {fix explanation}
+  <br />
+  <br />
+  <strong>Why:</strong> {why explanation}
+</details>
 ```
 
-Use the PR head commit SHA for permalinks. For line ranges use `#L{start}-L{end}`.
-
-`question` findings may omit the `Fix:` field because they seek clarification rather than prescribe a change. In PR review mode, Tier 2 already-reported findings may also omit `Fix:`/`Why:` when the disposition is `already covered` (see `skills/code-review/references/review-output-templates.md`). All other labels require `Fix:`.
+`question` findings may omit the `Fix:` field. Markdown rendering inside `<details>` can be inconsistent depending on nesting/indentation — use HTML tags for reliability: inline code as `<code>{code}</code>`, code blocks as `<pre><code>{code}</code></pre>`.
 
 **Labels:** issue, suggestion, todo, question, thought, note, chore, praise
-**Decorations (required):** `(blocking)` — must fix before merge; `(non-blocking)` — default; `(security)` — security concern; `(if-minor)` — fix only if change is small. Combine as needed: `(blocking, security)`.
+**Decorations (required):** Always include at least one decoration. Use one or more of: `(blocking)` — must fix before merge; `(non-blocking)` — default and must be used when no other decoration applies; `(security)` — security concern; `(if-minor)` — fix only if change is small. Combine as needed, e.g. `(blocking, security)`.
 **Confidence rule:** Only report actionable labels (issue, suggestion, todo, chore) when highly confident. Use softer labels (question, thought, note) when uncertain. Prefer `question` over `issue` when you aren't sure whether code is intentional — ask for the rationale rather than flagging it as a defect. Never use `nitpick`.
 
 ## What NOT to Report
@@ -45,45 +81,12 @@ Analyze all changed code across these areas:
 4. **Tests** — Missing coverage for critical paths, edge cases, error branches; high regression risk without tests
 5. **Types** — `any` abuse, stringly-typed APIs, exposed mutable internals, god objects (10+ fields), types that allow invalid states
 6. **Simplification** — Deep nesting (>3 levels), duplicate logic, poor naming, unnecessary abstractions, over-engineering
-7. **Guidelines** — Deviations from project conventions in CLAUDE.md or project config (imports, naming, error handling, file structure)
-
-## Consolidated Findings
-
-When the same issue appears in multiple files:
-
-```
-<label> (<decorations>): <subject> — N occurrences
-
-  Files:
-  - https://github.com/{owner}/{repo}/blob/{sha}/{file_a}#L10
-  - https://github.com/{owner}/{repo}/blob/{sha}/{file_b}#L25
-
-  Fix: Common fix approach.
-
-  Why: Common description.
-```
-
-## Verdict
-
-| Verdict | Condition |
-|---------|-----------|
-| **REQUEST CHANGES** | Any `(blocking)` finding |
-| **COMMENT** | Has `issue` or `todo` findings, none blocking |
-| **APPROVE** | No `issue` or `todo` findings |
-
-Never approve code with security vulnerabilities or critical bugs.
-
-## Output Structure
-
-1. Start with `Code Review: <branch-name>` header, then `Scope: N commits, N files (+N / -N)`, then a numbered overview of what the branch does
-2. Group findings by file — numbered sections: `1. path/to/file.ts — Short context`
-3. Order findings by severity: `issue (blocking)` → `issue` → `todo` → `suggestion` → `question` → `thought` → `note` → `chore`
-4. End with a single `praise:` block summarizing what was done well
-5. For the review summary section (headings, summary table, verdict, and when to omit zero-count rows), follow the canonical templates in `skills/code-review/references/review-output-templates.md`.
+7. **Guidelines** — Deviations from project conventions in `CLAUDE.md` or project config (imports, naming, error handling, file structure)
 
 ## AI-Generated Code
 
 When reviewing AI-generated changes, additionally check for:
+
 - Behavioral regressions — subtle changes to existing behavior
 - Unvalidated inputs the AI trusts
 - Unnecessary complexity or gratuitous abstractions
