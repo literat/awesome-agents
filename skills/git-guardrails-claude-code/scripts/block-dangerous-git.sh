@@ -14,17 +14,19 @@ COMMAND=$(echo "$INPUT" | jq -er '.tool_input.command') || {
   exit 2
 }
 
-# Strip single- and double-quoted string literals so that patterns mentioned inside
-# string arguments (e.g. gh api -F body="...git push...") don't cause false positives.
-# All pattern matching below uses COMMAND_UNQUOTED; COMMAND is preserved for error messages.
+# Strip single- and double-quoted string literals to prevent false positives when
+# 'git push' appears inside a string argument (e.g. gh api -F body="...git push...").
+# COMMAND_UNQUOTED is used ONLY for push interception; DANGEROUS_PATTERNS and commit
+# interception use the original COMMAND so that commands wrapped in quotes (e.g.
+# bash -c "git reset --hard ...") or with quoted path args are still caught.
 COMMAND_UNQUOTED=$(printf '%s\n' "$COMMAND" | sed "s/'[^']*'//g" | sed 's/"[^"]*"//g')
 
 # --- Smart Commit Interception ---
 # Intercept `git commit` to enforce fixup or user-edited message workflow.
 # Allow: --fixup=, -F, --file= (user already chose a workflow)
 # Block: everything else (especially `git commit -m "..."`)
-if echo "$COMMAND_UNQUOTED" | grep -qE '(^|[[:space:]])git commit([[:space:]]|$)'; then
-  if echo "$COMMAND_UNQUOTED" | grep -qE '(--fixup=|-F[[:space:]]|-F$|--file=)'; then
+if echo "$COMMAND" | grep -qE '(^|[[:space:]])git commit([[:space:]]|$)'; then
+  if echo "$COMMAND" | grep -qE '(--fixup=|-F[[:space:]]|-F$|--file=)'; then
     exit 0
   fi
   cat >&2 <<'COMMIT_MSG'
@@ -58,7 +60,7 @@ fi
 # Block: everything else
 # Note: on the confirmed path we fall through to DANGEROUS_PATTERNS so command chaining
 # (e.g. GIT_PUSH_CONFIRMED=1 git push && git reset --hard) is still caught below.
-if echo "$COMMAND_UNQUOTED" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+)*[[:space:]]+push([[:space:]]|$)'; then
+if echo "$COMMAND_UNQUOTED" | grep -qE '(^|[[:space:]])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+push([[:space:]]|$)'; then
   if ! echo "$COMMAND_UNQUOTED" | grep -qE '^[[:space:]]*GIT_PUSH_CONFIRMED=1[[:space:]]+'; then
     cat >&2 <<'PUSH_MSG'
 BLOCKED: git push requires explicit user confirmation.
@@ -87,7 +89,7 @@ DANGEROUS_PATTERNS=(
 )
 
 for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-  if echo "$COMMAND_UNQUOTED" | grep -qE "$pattern"; then
+  if echo "$COMMAND" | grep -qE "$pattern"; then
     echo "BLOCKED: command matches dangerous pattern '$pattern'. The user has prevented you from doing this." >&2
     exit 2
   fi
