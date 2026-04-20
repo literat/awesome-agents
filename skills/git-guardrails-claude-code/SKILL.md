@@ -18,7 +18,7 @@ When blocked, Claude sees a message telling it that it does not have authority t
 
 ## Smart Push Workflow
 
-`git push` is never silently executed. Instead, the hook intercepts every push and requires explicit user confirmation:
+`git push` is never silently executed. Instead, the hook intercepts `git push` commands (including common forms with global options such as `git -c key=val push`) and requires explicit user confirmation:
 
 1. **Ask the user**: "Should I push these changes?" — **do NOT proceed without an explicit answer**
 2. After the user confirms, run the push with a confirmation marker:
