@@ -9,13 +9,24 @@ Sets up a PreToolUse hook that intercepts and blocks dangerous git commands befo
 
 ## What Gets Blocked
 
-- `git push` (all variants including `--force`)
 - `git reset --hard`
 - `git clean -f` / `git clean -fd`
 - `git branch -D`
 - `git checkout .` / `git restore .`
 
 When blocked, Claude sees a message telling it that it does not have authority to access these commands.
+
+## Smart Push Workflow
+
+`git push` is never silently executed. Instead, the hook intercepts every push and requires explicit user confirmation:
+
+1. **Ask the user**: "Should I push these changes?" — **do NOT proceed without an explicit answer**
+2. After the user confirms, run the push with a confirmation marker:
+   ```bash
+   GIT_PUSH_CONFIRMED=1 git push [original push arguments]
+   ```
+
+The hook recognises the `GIT_PUSH_CONFIRMED=1` prefix and allows the push through.
 
 ## Smart Commit Workflow
 
@@ -111,10 +122,15 @@ Ask if user wants to add or remove any patterns from the blocked list. Edit the 
 
 ### 6. Verify
 
-Run a quick test:
+Run quick tests:
 
 ```bash
+# Should exit 2 and print a BLOCKED/confirmation message
 echo '{"tool_input":{"command":"git push origin main"}}' | <path-to-script>
-```
 
-Should exit with code 2 and print a BLOCKED message to stderr.
+# Should exit 0 (user confirmed)
+echo '{"tool_input":{"command":"GIT_PUSH_CONFIRMED=1 git push origin main"}}' | <path-to-script>
+
+# Dangerous commands should still exit 2
+echo '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | <path-to-script>
+```

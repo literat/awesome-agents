@@ -46,8 +46,30 @@ COMMIT_MSG
   exit 2
 fi
 
+# --- Smart Push Interception ---
+# Intercept `git push` to require explicit user confirmation before pushing.
+# Allow: commands prefixed with GIT_PUSH_CONFIRMED=1 (signals user said yes)
+# Block: everything else
+if echo "$COMMAND" | grep -qE '(^|[[:space:]])git push([[:space:]]|$)'; then
+  if echo "$COMMAND" | grep -q 'GIT_PUSH_CONFIRMED=1'; then
+    exit 0
+  fi
+  cat >&2 <<'PUSH_MSG'
+BLOCKED: git push requires explicit user confirmation.
+
+IMPORTANT: You MUST ask the user for confirmation BEFORE pushing. Do NOT push without an explicit answer.
+
+Ask the user: "Should I push these changes?" and WAIT for their response.
+
+After the user confirms, run the push with the confirmation marker:
+  GIT_PUSH_CONFIRMED=1 git push [your original push arguments]
+
+Do NOT proceed without explicit user confirmation.
+PUSH_MSG
+  exit 2
+fi
+
 DANGEROUS_PATTERNS=(
-  "git push"
   "git reset --hard"
   "git clean -fd"
   "git clean -f"
