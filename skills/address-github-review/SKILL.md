@@ -92,18 +92,42 @@ Execute changes systematically:
    - Check for related code that may need similar updates
    - This prevents incomplete implementations
 
-3. **Reference Review Comments**
+3. **Read GitHub Suggestion Blocks in Full**
+
+   GitHub review comments formatted as `` ```suggestion ``` `` blocks show the **complete replacement** for the highlighted lines. When a suggestion exists:
+   - Read the entire suggested replacement, not just the part that prompted the comment title.
+   - Diff it mentally against the **current file content** line by line.
+   - Only declare "already applied" when **every token** of the suggestion matches the file.
+
+   **Example of a mistake to avoid:**
+   Reviewer suggests:
+   ```suggestion
+   <ButtonLink href={routes.homepage}>
+   ```
+   Current code: `<ButtonLink href={routes.homepage} color="primary">`
+   ❌ Wrong: "href already uses routes.homepage — already applied."
+   ✅ Correct: Suggestion also removes `color="primary"` — apply that removal too.
+
+4. **Always Ask Before Committing**
+
+   Before running any `git commit`, use `AskUserQuestion` to ask:
+   - New commit or fixup into an existing one?
+   - If fixup: which commit hash?
+
+   Never run `git commit` (or `git commit --fixup`) without first getting this confirmation from the user. This respects project hooks that enforce the commit workflow.
+
+5. **Reference Review Comments**
    ```bash
    # In commit message, reference the PR comment
    git commit -m "Fix: Update documentation (review comment PR#1-c123)"
    ```
 
-4. **Test Changes**
+6. **Test Changes**
    - Run tests for modified code
    - Manually verify fixes work as intended
    - Check that you haven't introduced regressions
 
-5. **Update Status**
+7. **Update Status**
    - Push commits to the PR branch
    - Let checks/CI run to completion
    - Do NOT push if tests fail
@@ -569,6 +593,15 @@ EOF
 ### ❌ Not Resolving Threads After Replying
 **Problem:** Review conversations remain open even though they've been addressed
 **Solution:** Always resolve threads immediately after replying if no additional information is needed from the reviewer
+
+### ❌ Partially Reading a GitHub Suggestion Block
+**Problem:** A suggestion block shows the full replacement, but you only check one part of it and declare the thread "already applied".
+**Example:** Reviewer suggests `<ButtonLink href={routes.homepage}>`. Current code has `<ButtonLink href={routes.homepage} color="primary">`. Checking only that `routes.homepage` is present misses that `color="primary"` should be removed.
+**Solution:** Diff the entire suggestion against the current file content token by token before concluding it is already applied.
+
+### ❌ Committing Without Asking First
+**Problem:** Running `git commit` directly skips the project's required workflow (hook or convention) for choosing between a new commit and a fixup.
+**Solution:** Always use `AskUserQuestion` before any `git commit` call: ask (1) new commit or fixup, and (2) if fixup, which target hash. Never commit autonomously.
 
 ## Advanced Patterns
 
