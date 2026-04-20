@@ -10,6 +10,8 @@ When a code suggestion exists, it **must appear as the very first element** — 
 
 **Order is mandatory.** Do not place the label, subject, or `<details>` block before the suggestion block.
 
+**Self-check before outputting any finding with a suggestion:** Is ` ```suggestion ` the absolute first line of the comment? If not, rewrite — move the suggestion block above everything else.
+
 Correct format when a suggestion exists:
 
 ````markdown
