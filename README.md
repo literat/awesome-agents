@@ -6,6 +6,10 @@
 
 * [grill-me][grill-me]
 
+## Optimizations
+
+* [Cavemen][caveman] - Ultra-compressed communication mode. Spare tokens by dropping filler, articles, and pleasantries while keeping full technical accuracy.
+
 Commands are skills executed via slash commands. They overlap but are stored differently.
 
 ## Commands
