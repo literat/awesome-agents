@@ -21,6 +21,7 @@ When blocked, Claude sees a message telling it that it does not have authority t
 `git push` is never silently executed. Instead, the hook intercepts `git push` commands (including common forms with global options such as `git -c key=val push`) and requires explicit user confirmation:
 
 1. **Ask the user**: "Should I push these changes?" — **do NOT proceed without an explicit answer**
+   - **Exception**: if the user already explicitly confirmed the push in their message (e.g. "push and then resolve comments"), skip `AskUserQuestion` and go straight to step 2 — re-asking when confirmation is already on record is unnecessary friction.
 2. After the user confirms, run the push with a confirmation marker:
    ```bash
    GIT_PUSH_CONFIRMED=1 git push [original push arguments]
