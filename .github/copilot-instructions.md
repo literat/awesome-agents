@@ -1,18 +1,8 @@
 # Code Review Instructions
 
-Frame findings constructively. Assume the author made a reasonable choice until proven otherwise. Use "consider" for suggestions, ask before asserting when intent is ambiguous, and lead with the fix rather than the fault. The goal is to make the code better, not to catalog what's wrong.
+## REQUIRED: Suggestion fence goes first
 
-Use [Conventional Comments](https://conventionalcomments.org/) for all findings.
-
-## Finding Format
-
-When a code suggestion exists, it **must appear as the very first element** — before the label line and before the `<details>` block. Use GitHub’s PR review suggestion fence (` ```suggestion`), which allows reviewers to apply the fix with one click. When no code suggestion is possible, omit the code block.
-
-**Order is mandatory.** Do not place the label, subject, or `<details>` block before the suggestion block.
-
-**Self-check before outputting any finding with a suggestion:** Is ` ```suggestion ` the absolute first line of the comment? If not, rewrite — move the suggestion block above everything else.
-
-Correct format when a suggestion exists:
+When a code suggestion exists, the ` ```suggestion ` fence **MUST be the very first line of the comment** — before any label, subject, or `<details>` block. This is non-negotiable.
 
 ````markdown
 ```suggestion
@@ -30,17 +20,15 @@ Correct format when a suggestion exists:
 </details>
 ````
 
-Incorrect — do not do this:
+---
 
-````markdown
-**{label} ({decorations}):** {subject}
+Frame findings constructively. Assume the author made a reasonable choice until proven otherwise. Use "consider" for suggestions, ask before asserting when intent is ambiguous, and lead with the fix rather than the fault. The goal is to make the code better, not to catalog what’s wrong.
 
-<details>…</details>
+Use [Conventional Comments](https://conventionalcomments.org/) for all findings.
 
-```suggestion
-{suggested code}
-```
-````
+## Finding Format
+
+When a code suggestion exists, use GitHub’s PR review suggestion fence (` ```suggestion`), which allows reviewers to apply the fix with one click. The suggestion fence must be the very first line of the comment.
 
 When there is no code suggestion:
 
