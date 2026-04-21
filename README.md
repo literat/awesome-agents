@@ -4,11 +4,17 @@
 
 ### Define - Clarify what you build
 
-* [grill-me][grill-me]
+* [grill-me][skill-grill-me]
+
+### Review - Quality gates before merge
+
+* [create-pr][skill-create-pr]
+* [code-review][skill-code-review]
+* [address-github-review][skill-address-github-review]
 
 ## Optimizations
 
-* [Cavemen][caveman] - Ultra-compressed communication mode. Spare tokens by dropping filler, articles, and pleasantries while keeping full technical accuracy.
+* [Cavemen][skill-caveman] - Ultra-compressed communication mode. Spare tokens by dropping filler, articles, and pleasantries while keeping full technical accuracy.
 
 ## Key Concepts
 
@@ -47,5 +53,8 @@ Commands are skills executed via slash commands. They overlap but are stored dif
 [claude-github-actions]: https://code.claude.com/docs/en/github-actions
 [skills-matt-pocock]: https://github.com/mattpocock/skills
 [skills-aihero-everyday]: https://www.aihero.dev/5-agent-skills-i-use-every-day
-[grill-me]: commands/grill-me.md
-[caveman]: skills/caveman/SKILL.md
+[skill-grill-me]: commands/grill-me.md
+[skill-create-pr]: commands/create-pr.md
+[skill-code-review]: commands/code-review.md
+[skill-address-github-review]: commands/address-github-review.md
+[skill-caveman]: skills/caveman/SKILL.md
