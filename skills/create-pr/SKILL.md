@@ -24,11 +24,13 @@ Create or update a GitHub pull request for the current branch. Check prerequisit
 Run both checks before proceeding:
 
 ```bash
-# Verify gh CLI is installed
-command -v gh >/dev/null 2>&1 || echo "GH_NOT_FOUND"
-
-# Verify gh is authenticated
-gh auth status 2>&1
+# Verify gh CLI is installed before checking authentication
+if command -v gh >/dev/null 2>&1; then
+  gh auth status 2>&1
+else
+  echo "GH_NOT_FOUND"
+  exit 1
+fi
 ```
 
 - If `gh` is not installed: tell the user to install it from https://cli.github.com and stop.
@@ -39,14 +41,14 @@ gh auth status 2>&1
 Run these in parallel:
 
 ```bash
-# Determine default branch (main, master, or whatever the remote uses)
-git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|.*/||'
+# Determine default branch (origin/main, origin/master, or whatever the remote uses)
+git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null
 
 # Commits ahead of default branch
-git log $(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|.*/||')..HEAD --oneline
+git log $(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)..HEAD --oneline
 
 # Diff against default branch (exclude lock files)
-git diff $(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|.*/||')..HEAD -- . ':(exclude)*.lock' ':(exclude)package-lock.json' ':(exclude)yarn.lock' ':(exclude)pnpm-lock.yaml'
+git diff $(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)..HEAD -- . ':(exclude)*.lock' ':(exclude)package-lock.json' ':(exclude)yarn.lock' ':(exclude)pnpm-lock.yaml'
 
 # Existing PR for this branch
 gh pr view --json number,title,body,url,state 2>/dev/null || echo "NO_PR"
