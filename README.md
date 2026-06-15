@@ -8,6 +8,7 @@
 
 ### Review - Quality gates before merge
 
+* [atomic-commits][skill-atomic-commits]
 * [create-pr][skill-create-pr]
 * [code-review][skill-code-review]
 * [address-github-review][skill-address-github-review]
@@ -40,6 +41,40 @@ Commands are skills executed via slash commands. They overlap but are stored dif
 
 [Claude Hooks Documentation][claude-hooks]
 
+## Installation
+
+Install via the Claude Code plugin system:
+
+```
+/plugin install awesome-agents@claude-plugins-official
+```
+
+Or via [agents.sh](https://agents.sh).
+
+## Development
+
+Clone the repo and run the install script once to symlink skills, agents, and commands into `~/.claude/`:
+
+```bash
+git clone https://github.com/literat/awesome-agents.git
+cd awesome-agents
+./install.sh
+```
+
+Edits to any file are picked up on the next session restart. To remove the symlinks:
+
+```bash
+./install.sh --uninstall
+```
+
+**Alternative — session-only load** (no persistent install):
+
+```bash
+claude --plugin-dir /path/to/awesome-agents
+```
+
+Useful for one-off testing. The flag can be repeated for multiple plugins.
+
 ## References
 
 * [Matt Pocock - Agent Skills][skills-matt-pocock]
@@ -58,3 +93,4 @@ Commands are skills executed via slash commands. They overlap but are stored dif
 [skill-code-review]: commands/code-review.md
 [skill-address-github-review]: commands/address-github-review.md
 [skill-caveman]: skills/caveman/SKILL.md
+[skill-atomic-commits]: skills/atomic-commits/SKILL.md
